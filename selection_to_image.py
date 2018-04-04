@@ -18,21 +18,19 @@ def fetch_next_image_id(dir_path, year):
     return "%04d" % max_count
 
 
-def determine_file_formats(png=0, raw=0, jpeg=0, bmp=0):
+def determine_file_formats(png=0, raw=0, jpeg=0:
     formats = []
     if png:
         formats.append('png')
     if raw:
-        formats.append('data')
+        formats.append('tiff')
     if jpeg:
         formats.append('jpg')
-    if bmp:
-        formats.append('bmp')
 
     return formats
 
 
-def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg, bmp):
+def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg):
     pic_side = "back" if pic_side else "front"
     dir_path = "/home/nick/Desktop/Family Pictures/" + year
 
@@ -70,7 +68,7 @@ def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg, bmp):
     new_drw = pdb.gimp_image_active_drawable(new_img)
 
     # Save in requested formats
-    for file_format in determine_file_formats(png, raw, jpeg, bmp):
+    for file_format in determine_file_formats(png, raw, jpeg):
         filen = "%s-%s-%s.%s" % (year, img_count, pic_side, file_format)
         pdb.gimp_file_save(new_img, new_drw,
                            filebase + '.' + file_format,
@@ -98,7 +96,6 @@ register(
         (PF_TOGGLE, "raw", "RAW", 1),
         (PF_TOGGLE, "png", "PNG", 1),
         (PF_TOGGLE, "jpeg", "JEPG", 0),
-        (PF_TOGGLE, "bmp", "BMP", 0),
     ],
     [],
     selection_to_image)
