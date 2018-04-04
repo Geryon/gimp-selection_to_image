@@ -8,17 +8,22 @@ import os
 from gimpfu import *
 
 
-def fetch_next_image_id(dir_path, year):
+def fetch_next_image_id(dir_path, year, side):
     filenames = glob.glob("%s/%s*" % (dir_path, year))
     counts = []
     for name in filenames:
         m = re.findall('(\d{4})', name)
         counts.append(int(m[2]))
-    max_count = 0 if len(counts) == 0 else max(counts) + 1
+    max_count = 0 if len(counts) == 0 else max(counts)
+    # If the file doesn't exist, assume it's the respective other side
+    # of the picture, otherwise, increment the image id by 1
+    filen = "%s/%s-%04d-%s.*" % (dir_path, year, max_count, side)
+    if glob.glob(filen):
+        max_count += 1
     return "%04d" % max_count
 
 
-def determine_file_formats(png=0, raw=0, jpeg=0:
+def determine_file_formats(png=0, raw=0, jpeg=0):
     formats = []
     if png:
         formats.append('png')
@@ -35,7 +40,7 @@ def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg):
     dir_path = "/home/nick/Desktop/Family Pictures/" + year
 
     # Determine next image increment
-    img_count = fetch_next_image_id(dir_path, year)
+    img_count = fetch_next_image_id(dir_path, year, pic_side)
 
     filebase = "%s/%s-%s-%s" % (dir_path, year, img_count, pic_side)
     gimp.progress_init("Creating files with base name %s." % filebase)
