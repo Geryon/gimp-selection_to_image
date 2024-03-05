@@ -17,7 +17,7 @@ def fetch_next_image_id(dir_path, year, side):
     max_count = 0 if len(counts) == 0 else max(counts)
     # If the file doesn't exist, assume it's the respective other side
     # of the picture, otherwise, increment the image id by 1
-    filen = "%s/%s-%04d-%s.*" % (dir_path, year, max_count, side)
+    filen = "%s/%s-%04d-%s*" % (dir_path, year, max_count, side)
     if glob.glob(filen):
         max_count += 1
     return "%04d" % max_count
@@ -35,14 +35,18 @@ def determine_file_formats(png=0, raw=0, jpeg=0):
     return formats
 
 
-def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg):
+def selection_to_image(timg, tdrawable, year, pic_side, comment, raw, png, jpeg):
     pic_side = "back" if pic_side else "front"
     dir_path = "/home/nick/Desktop/Family Pictures/" + year
+
+    if len(comment) > 0:
+        comment = re.sub(r' ', '_', comment)
+        comment = '-' + comment
 
     # Determine next image increment
     img_count = fetch_next_image_id(dir_path, year, pic_side)
 
-    filebase = "%s/%s-%s-%s" % (dir_path, year, img_count, pic_side)
+    filebase = "%s/%s-%s-%s%s" % (dir_path, year, img_count, pic_side, comment)
     gimp.progress_init("Creating files with base name %s." % filebase)
 
     # Create the directory if it's missing
@@ -74,7 +78,7 @@ def selection_to_image(timg, tdrawable, year, pic_side, raw, png, jpeg):
 
     # Save in requested formats
     for file_format in determine_file_formats(png, raw, jpeg):
-        filen = "%s-%s-%s.%s" % (year, img_count, pic_side, file_format)
+        filen = "%s-%s-%s%s.%s" % (year, img_count, pic_side, comment, file_format)
         pdb.gimp_file_save(new_img, new_drw,
                            filebase + '.' + file_format,
                            filen)
@@ -98,6 +102,7 @@ register(
     [
         (PF_STRING, "year", "Year", "1985"),
         (PF_OPTION, "pic_side", "Picture Side", 0, ["Front", "Back"]),
+        (PF_STRING, "comment", "Comment", ""),
         (PF_TOGGLE, "raw", "RAW", 1),
         (PF_TOGGLE, "png", "PNG", 1),
         (PF_TOGGLE, "jpeg", "JEPG", 0),
